@@ -6,9 +6,19 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.cucumber.java.en.Then;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import pages.LoginPage;
 
@@ -18,10 +28,44 @@ public class LoginStepDefinitions {
     private LoginPage loginPage;
 
     @Before
-    public void setup(){
-    	  WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-    }
+    public void setup() throws IOException{
+    	Properties prop = new Properties();
+		File proFile = new File("src\\test\\java\\config\\config.properties");
+		
+		
+			FileInputStream fis = new FileInputStream(proFile);
+			prop.load(fis);
+    			
+    			String browserName = System.getProperty("browser")!=null ? System.getProperty("browser") :prop.getProperty("browser");
+//    			String browserName=prop.getProperty("browser");
+    			if (browserName.contains("chrome")) {
+    				ChromeOptions options = new ChromeOptions();
+    				WebDriverManager.chromedriver().setup();
+    				if(browserName.contains("headless")){
+    				options.addArguments("headless");
+    				}		
+    				driver = new ChromeDriver(options);
+    				driver.manage().window().setSize(new Dimension(1440,900));}
+    		
+    			else if (browserName.equalsIgnoreCase("edge")) {
+    			
+    				System.setProperty("webdriver.edge.driver",
+				"src\\test\\java\\config\\msedgedriver.exe");
+    			
+    				driver = new EdgeDriver();
+    			}
+//    				// Firefox
+//    			} 
+//    			if (browserName.equalsIgnoreCase("chrome")) {
+////    				WebDriverManager.edgedriver().setup();
+//    				System.setProperty("webdriver.gecko.driver",
+//				"src\\test\\java\\config\\geckodriver.exe");
+//    				driver = new FirefoxDriver();
+//    				// Firefox
+//    			} 
+    				
+    			}
+    
 
     @After
     public void tearDown(){
